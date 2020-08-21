@@ -10,6 +10,8 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
+server = app.server
+
 df = pd.read_csv('Game_of_Thrones_Script.csv')
 
 #gives list of all seasons to be used as buttons
