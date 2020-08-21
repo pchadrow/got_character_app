@@ -12,7 +12,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 server = app.server
 
-df = pd.read_csv('Game_of_Thrones_Script.csv')
+df = pd.read_csv('Game_of_Thrones_Script_Corrected.csv')
 
 #gives list of all seasons to be used as buttons
 available_seasons = {'All': None,
@@ -44,7 +44,7 @@ app.layout = html.Div([
 def update_graph(season):
     if not season == 'All':
         dfs = df[df['Season'] == season]
-        dfcount = dfs.Name.value_counts().reset_index(name="count").query("count > 5")[:25]
+        dfcount = dfs.Character.value_counts().reset_index(name="count").query("count > 5")[:25]
         fig = px.bar(dfcount,
             x = 'index',
             y = 'count',
@@ -55,7 +55,7 @@ def update_graph(season):
         return fig
         
     else:
-        dfcount = df.Name.value_counts().reset_index(name="count").query("count > 5")[:25]
+        dfcount = df.Character.value_counts().reset_index(name="count").query("count > 5")[:25]
             
         fig = px.bar(dfcount,
             x = 'index',
