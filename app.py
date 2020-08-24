@@ -31,7 +31,7 @@ app.layout = html.Div([
     dcc.Dropdown(
     id='season_select',
     options=[{'label': k, 'value': k} for k in available_seasons.keys()],
-    value='All'
+    value='All Seasons'
     ),
 
     #creates callback list providing options depending on previous selection
