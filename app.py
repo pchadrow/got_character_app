@@ -35,7 +35,8 @@ app.layout = html.Div([
     ),
 
     #creates callback list providing options depending on previous selection
-    dcc.Dropdown(id='episode_select')
+    dcc.RadioItems(id='episode_select',
+                labelStyle={'display': 'inline-block'})
     ]), 
     
     dcc.Graph(id='season_plot'),
