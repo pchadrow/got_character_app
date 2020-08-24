@@ -61,7 +61,7 @@ app.layout = html.Div([
                     20: '20',
                     25: '25'
                     },
-                value = 5))]),
+                value = 10))]),
         
             html.Div([
         
