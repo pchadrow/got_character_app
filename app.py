@@ -26,35 +26,50 @@ available_seasons = {'All Seasons': None,
                     'Season 8': 'Season 8'}
 
 app.layout = html.Div([
-   html.Div([
-    
-    dcc.Dropdown(
-    id='season_select',
-    options=[{'label': k, 'value': k} for k in available_seasons.keys()],
-    value='All Seasons'
-    ),
-
-    #creates callback list providing options depending on previous selection
-    dcc.RadioItems(id='episode_select',
-                labelStyle={'display': 'inline-block'})
+   html.Div(
+       style ={'padding': "20px 10px 25px 4px"},
+       children = [
+            html.P('Season Select'),
+            html.Div(style={"margin-left": "6px"}, children=dcc.Dropdown(
+                id='season_select',
+                options=[{'label': k, 'value': k} for k in available_seasons.keys()],
+                value='All Seasons'
+                )),
+       #creates callback list providing options depending on previous selection    
+       html.Div(
+           style={'margin': '10px 0px'},
+           children=[
+           html.P(children='Episode Select', style={'margin-left': '3px'}),
+               dcc.RadioItems(id='episode_select',
+                     labelStyle={'display': 'inline-block'})]),
     ]), 
     
     dcc.Graph(id='season_plot'),
-
-    dcc.Slider(
-        id = 'top_selection',
-        min = 5,
-        max = 25,
-        marks = {
-            5: '5',
-            10: '10',
-            15: '15',
-            20: '20',
-            25: '25'
-            },
-        value = 5
-    )
+    
+    html.Div(
+        style={'padding': '20px 10px 25px 4px'},
+        children =[
+            html.P('Top (x) Character Selector'),
+            html.Div(style={'margin-left': '6px'}, children=dcc.Slider(
+                id = 'top_selection',
+                min = 5,
+                max = 25,
+                marks={
+                    5: '5',
+                    10: '10',
+                    15: '15',
+                    20: '20',
+                    25: '25'
+                    },
+                value = 5))]),
+        
+            html.Div([
+        
+            dcc.Graph(id='count_plot')
+    ])
+    
 ])
+
 #refreshes app every time season_select is changed to provide new options to episode select
 @app.callback(
     Output('episode_select', 'options'),
@@ -116,6 +131,47 @@ def update_graph(season, episode, top):
     
         return fig
 
+@app.callback(
+    Output('count_plot', 'figure'),
+    [Input('season_select', 'value'),
+     Input('episode_select', 'value'),
+     Input('top_selection', 'value')])
+def update_word_count(season, episode, top):
+    if not season == 'All Seasons':
+        dfs = df[df['Season'] == season]
+        if episode:
+            dfe = dfs[dfs['Episode'] == episode]
+            dfcount = dfe.groupby('Character').sum().sort_values('word_count', ascending = False).reset_index()[:top]
+            fig = px.bar(dfcount,
+            x = 'Character',
+            y = 'word_count',
+            title = f'Top {top} Speaking Characters in {season} {episode} by Total Number of Words')
+            fig.update_xaxes(title = 'Character')
+            fig.update_yaxes(title = 'Total Number of Words Spoken')
+            return fig   
+        
+        else:
+            dfcount = dfs.groupby('Character').sum().sort_values('word_count', ascending = False).reset_index()[:top]
+            fig = px.bar(dfcount,
+            x = 'Character',
+            y = 'word_count',
+            title = f'Top {top} Speaking Characters in {season} by Total Number of Words')
+            fig.update_xaxes(title='Character')
+            fig.update_yaxes(title='Total Number of Words Spoken')
+        
+            return fig
+        
+    else:
+        dfcount = df.groupby('Character').sum().sort_values('word_count', ascending = False).reset_index()[:top]
+            
+        fig = px.bar(dfcount,
+            x = 'Character',
+            y = 'word_count',
+            title = f'Top {top} Speaking Characters Overall by Number of Words Spoken')
+        fig.update_xaxes(title='Character')
+        fig.update_yaxes(title='Total Number of Words Spoken')
+    
+        return fig
 
 if __name__ == '__main__':
     app.run_server(debug=False)
