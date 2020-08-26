@@ -8,6 +8,7 @@ from wordcloud import WordCloud
 from PIL import Image
 from io import BytesIO
 import numpy as np
+import base64
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -252,7 +253,6 @@ def create_word_cloud(season, episode, character):
             byte = BytesIO()
             img.save(byte, format='PNG')
             return 'data:image/png;base64,{}'.format(base64.b64encode(byte.getvalue()).decode())
-            return None
     
     else:
         dfc = df[df['Character'] == character]
