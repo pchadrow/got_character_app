@@ -84,8 +84,7 @@ app.layout = html.Div([
                 ))]
         ),
         html.Div([
-            html.Img(id='word_cloud',
-            style={'width':'100%':'height':'100%'})
+            html.Img(id='word_cloud', style={'width':'100%', 'height':'100%'})
         ])
     ])
     
