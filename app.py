@@ -84,7 +84,8 @@ app.layout = html.Div([
                 ))]
         ),
         html.Div([
-            html.Img(id='word_cloud')
+            html.Img(id='word_cloud',
+            style={'width':'100%':'height':'100%'})
         ])
     ])
     
@@ -232,7 +233,7 @@ def set_character_options(season, episode, top):
      Input('character_select', 'value')])
 def create_word_cloud(season, episode, character):
     wc = WordCloud(background_color='white' ,collocations = False,
-                  mask = cloud_mask, contour_width =1, height = 150, width = 300)
+                  mask = cloud_mask, contour_width =1)
     if not season == 'All Seasons':
         dfs = df[df['Season'] == season]
         if episode:
