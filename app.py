@@ -4,7 +4,10 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.express as px
-
+from wordcloud import WordCloud
+from PIL import Image
+from io import BytesIO
+import numpy as np
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -13,6 +16,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
 df = pd.read_csv('Game_of_Thrones_Script_Corrected.csv')
+cloud_mask = np.array(Image.open('mask.png'))
 
 #gives list of all seasons to be used as buttons
 available_seasons = {'All Seasons': None,
@@ -66,6 +70,21 @@ app.layout = html.Div([
             html.Div([
         
             dcc.Graph(id='count_plot')
+    ]),
+
+    html.Div([
+        html.Div(
+            style ={'padding': "20px 10px 25px 4px"},
+            children = [
+            html.P('Character Word Cloud Select'),
+            html.Div(style={"margin-left": "6px"}, children=dcc.Dropdown(
+                id='character_select',
+                value = 'None'
+                ))]
+        ),
+        html.Div([
+            html.Img(id='word_cloud')
+        ])
     ])
     
 ])
@@ -172,6 +191,77 @@ def update_word_count(season, episode, top):
         fig.update_yaxes(title='Total Number of Words Spoken')
     
         return fig
+
+
+# creates list of available characters to select for a word cloud based upon previous selections
+@app.callback(
+    Output('character_select', 'options'),
+    [Input('season_select', 'value'),
+     Input('episode_select', 'value'),
+     Input('top_selection', 'value')])
+def set_character_options(season, episode, top):
+    if not season == 'All Seasons':
+        dfs = df[df['Season'] == season]
+        if episode:
+            dfe = dfs[dfs['Episode'] == episode]
+            dfcount = dfe.groupby('Character').sum().sort_values('word_count', ascending = False).reset_index()[:top+5]
+            names = list(dfcount['Character'])
+            selection = [{'label' : i, 'value': i} for i in names]
+            selection.append({'label': 'None', 'value': None})
+            return selection
+        else:
+            dfcount = dfs.groupby('Character').sum().sort_values('word_count', ascending = False).reset_index()[:top+5]
+            names = list(dfcount['Character'])
+            selection = [{'label' : i, 'value': i} for i in names]
+            selection.append({'label': 'None', 'value': None})
+            return selection
+    
+    else:
+        dfcount = df.groupby('Character').sum().sort_values('word_count', ascending = False).reset_index()[:top+5]
+        names = list(dfcount['Character'])
+        selection = [{'label' : i, 'value': i} for i in names]
+        selection.append({'label': 'None', 'value': None})
+        return selection
+    
+    
+@app.callback(
+    Output('word_cloud', 'src'),
+    [Input('season_select', 'value'),
+     Input('episode_select', 'value'),
+     Input('character_select', 'value')])
+def create_word_cloud(season, episode, character):
+    wc = WordCloud(background_color='white' ,collocations = False,
+                mask = cloud_mask, contour_width=1, height = 150, width = 300)
+    if not season == 'All Seasons':
+        dfs = df[df['Season'] == season]
+        if episode:
+            dfe = dfs[dfs['Episode'] == episode]
+            dfc = dfe[dfe['Character'] == character]
+            text = ' '.join(dfc['Sentence'])
+            wc.generate(text)
+            img = wc.to_image()
+            byte = BytesIO()
+            img.save(byte, format='PNG')
+            return 'data:image/png;base64,{}'.format(base64.b64encode(byte.getvalue()).decode())
+        
+        else:
+            dfc = dfs[dfs['Character'] == character]
+            text = ' '.join(dfc['Sentence'])
+            wc.generate(text)
+            img = wc.to_image()
+            byte = BytesIO()
+            img.save(byte, format='PNG')
+            return 'data:image/png;base64,{}'.format(base64.b64encode(byte.getvalue()).decode())
+            return None
+    
+    else:
+        dfc = df[df['Character'] == character]
+        text = ' '.join(dfc['Sentence'])
+        wc.generate(text)
+        img = wc.to_image()
+        byte = BytesIO()
+        img.save(byte, format='PNG')
+        return 'data:image/png;base64,{}'.format(base64.b64encode(byte.getvalue()).decode())
 
 if __name__ == '__main__':
     app.run_server(debug=False)
