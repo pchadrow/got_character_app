@@ -119,33 +119,45 @@ def update_graph(season, episode, top):
         dfs = df[df['Season'] == season]
         if episode:
             dfe = dfs[dfs['Episode'] == episode]
-            dfcount = dfe.Character.loc[df['Character'] != 'man'].value_counts().reset_index(name='count').query('count > 5')[:top]
+            total = dfe.shape[0]   
+            dfcount = dfe.Character.loc[df['Character'] != 'man'].value_counts().reset_index(name="count").query("count > 2")[:top]
+            dfcount['total'] = round(dfcount['count']/total, 3)*1000
+            dfcount['total'] = (dfcount['total']/10).astype(str) + '%'
+            
             fig = px.bar(dfcount,
                 x = 'index',
                 y = 'count',
-                title = f'Top {top} Speaking Characters in {season} {episode}')
+                text = 'total',
+                title = f'Top {top} Speaking Characters in {season} {episode} and Percentage of Total Lines')
             fig.update_xaxes(title = 'Character')
             fig.update_yaxes(title = 'Number of Lines')
-            return fig
+            return fig   
         
         else:
+            total = dfs.shape[0]
             dfcount = dfs.Character.loc[df['Character'] != 'man'].value_counts().reset_index(name="count").query("count > 5")[:top]
+            dfcount['total'] = round(dfcount['count']/total, 3)*1000
+            dfcount['total'] = (dfcount['total']/10).astype(str) + '%'
             fig = px.bar(dfcount,
                 x = 'index',
                 y = 'count',
-                title = f'Top {top} Speaking Characters in {season}')
+                text = 'total',
+                title = f'Top {top} Speaking Characters in {season} and Percentage of Total Lines')
             fig.update_xaxes(title='Character')
             fig.update_yaxes(title='Number of Lines')
         
             return fig
         
     else:
-        dfcount = df.Character.value_counts().reset_index(name="count").query("count > 5")[:top]
-            
+        total = df.shape[0]
+        dfcount = df.Character.loc[df['Character'] != 'man'].value_counts().reset_index(name="count").query("count > 5")[:top]
+        dfcount['total'] = round(dfcount['count']/total, 3)*1000
+        dfcount['total'] = (dfcount['total']/10).astype(str) + '%'    
         fig = px.bar(dfcount,
             x = 'index',
             y = 'count',
-            title = f'Top {top} Speaking Characters Overall')
+            text = 'total',
+            title = f'Top {top} Speaking Characters Overall and Percentage of Total Lines')
         fig.update_xaxes(title='Character')
         fig.update_yaxes(title='Number of Lines')
     
@@ -161,33 +173,44 @@ def update_word_count(season, episode, top):
         dfs = df[df['Season'] == season]
         if episode:
             dfe = dfs[dfs['Episode'] == episode]
+            total = dfe['word_count'].sum()
             dfcount = dfe.groupby('Character').sum().sort_values('word_count', ascending = False).reset_index()[:top]
+            dfcount['total'] = round(dfcount['word_count']/total, 3)*1000
+            dfcount['total'] = (dfcount['total']/10).astype(str) + '%'
             fig = px.bar(dfcount,
-            x = 'Character',
-            y = 'word_count',
-            title = f'Top {top} Speaking Characters in {season} {episode} by Total Number of Words')
+                x = 'Character',
+                y = 'word_count',
+                text = 'total',
+                title = f'Top {top} Speaking Characters in {season} {episode} by Total Number of Words and Percentage of Words Spoken')
             fig.update_xaxes(title = 'Character')
             fig.update_yaxes(title = 'Total Number of Words Spoken')
             return fig   
         
         else:
+            total = dfs['word_count'].sum()
             dfcount = dfs.groupby('Character').sum().sort_values('word_count', ascending = False).reset_index()[:top]
+            dfcount['total'] = round(dfcount['word_count']/total, 3)*1000
+            dfcount['total'] = (dfcount['total']/10).astype(str) + '%'
             fig = px.bar(dfcount,
-            x = 'Character',
-            y = 'word_count',
-            title = f'Top {top} Speaking Characters in {season} by Total Number of Words')
+                x = 'Character',
+                y = 'word_count',
+                text = 'total',
+                title = f'Top {top} Speaking Characters in {season} by Total Number of Words and Percentage of Words Spoken')
             fig.update_xaxes(title='Character')
             fig.update_yaxes(title='Total Number of Words Spoken')
         
             return fig
         
     else:
+        total = df['word_count'].sum()
         dfcount = df.groupby('Character').sum().sort_values('word_count', ascending = False).reset_index()[:top]
-            
+        dfcount['total'] = round(dfcount['word_count']/total, 3)*1000
+        dfcount['total'] = (dfcount['total']/10).astype(str) + '%'    
         fig = px.bar(dfcount,
             x = 'Character',
             y = 'word_count',
-            title = f'Top {top} Speaking Characters Overall by Number of Words Spoken')
+            text = 'total',
+            title = f'Top {top} Speaking Characters Overall by Number Total Number of Words Spoken and Percentage of Words Spoken')
         fig.update_xaxes(title='Character')
         fig.update_yaxes(title='Total Number of Words Spoken')
     
