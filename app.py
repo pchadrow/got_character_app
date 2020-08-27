@@ -87,6 +87,9 @@ app.layout = html.Div([
             html.P('The word cloud is generated based upon all previous selections. For more character options, adjust slider.'),
             html.Img(id='word_cloud', style={'width':'100%', 'height':'100%'})
         ])
+    ]),
+    html.Div([
+        html.P('created by pchadrow')
     ])
     
 ])
