@@ -85,6 +85,7 @@ app.layout = html.Div([
         ),
         html.Div([
             html.P('The word cloud is generated based upon all previous selections. For more character options, adjust slider.'),
+            #style setting allows image to scale and resize depending on window
             html.Img(id='word_cloud', style={'width':'100%', 'height':'100%'})
         ])
     ]),
@@ -251,7 +252,8 @@ def set_character_options(season, episode, top):
         selection.append({'label': 'None', 'value': None})
         return selection
     
-    
+
+ #create encode and decode word cloud as an image to be displayed   
 @app.callback(
     Output('word_cloud', 'src'),
     [Input('season_select', 'value'),
@@ -281,6 +283,7 @@ def create_word_cloud(season, episode, character):
             img.save(byte, format='PNG')
             return 'data:image/png;base64,{}'.format(base64.b64encode(byte.getvalue()).decode())
     
+    #needs further investigation as to why general series word cloud is not produced
     else:
         dfc = df[df['Character'] == character]
         text = ' '.join(dfc['Sentence'])
